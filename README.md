@@ -7,13 +7,13 @@
 
 ## 项目简介
 
-FairGuard（公平竞技监考系统）是一套基于 Node.js、Express、Socket.IO、mediasoup 和 MySQL 的在线监考系统，支持考生端授权、实时音视频上报、屏幕共享、监考员实时查看、聊天沟通、录制保存、事件日志与数据库持久化。
+FairGuard（公平竞技监考系统）是一套基于 Node.js、Express、Socket.IO、mediasoup 和 MySQL 的在线监考系统，支持用户端授权、实时音视频上报、屏幕共享、监考员实时查看、聊天沟通、录制保存、事件日志与数据库持久化。
 
 本仓库已经整理为适合开源发布的结构，支持 Docker Compose 一键启动，也支持直接使用 Node.js 运行。
 
 ## 系统能力
 
-- 考生端：摄像头授权、屏幕共享、身份信息登记、聊天、考试过程提示、录制上传
+- 用户端：摄像头授权、屏幕共享、身份信息登记、聊天、考试过程提示、录制上传
 - 监考端：实时预览、学生列表、监考聊天、广播消息、日志查看、录制回放、指纹信息查看
 - 后端：HTTPS + HTTP 重定向、Socket.IO 会话共享、mediasoup WebRTC 转发、MySQL 持久化
 - 部署：支持 Docker Compose、独立 Node.js 运行、可配置证书与数据库
@@ -23,7 +23,7 @@ FairGuard（公平竞技监考系统）是一套基于 Node.js、Express、Socke
 ### 1. 前端层
 
 - `public/index.html` + `public/script.js`
-  - 考生端主页面
+  - 用户端主页面
   - 负责授权引导、采集、状态提示、录制上传流程
 - `views/monitor.html` + `public/monitor.js`
   - 监考端控制台
@@ -163,8 +163,8 @@ npm start
 
 #### 说明
 
-- 如果只是少量考生预览，资源压力会明显低于上面的建议值
-- 如果大量考生同时进行屏幕共享、摄像头上报和录制，带宽通常比 CPU 更先成为瓶颈
+- 如果只是少量用户预览，资源压力会明显低于上面的建议值
+- 如果大量用户同时进行屏幕共享、摄像头上报和录制，带宽通常比 CPU 更先成为瓶颈
 - 如果计划增加 `MEDIASOUP_MAX_WORKERS`，请同步扩展 UDP 端口范围和宿主机防火墙放行范围
 
 ## 网络架构说明
@@ -248,7 +248,7 @@ MEDIASOUP_COMPLEX_NETWORK_MODE=true
 
 ### 作用
 
-- 模拟多个考生同时进入系统
+- 模拟多个用户同时进入系统
 - 自动执行授权、进入监考室、停留、退出、上传等流程
 - 用于验证系统在并发场景下的稳定性
 
@@ -277,7 +277,7 @@ python fuzz.py
 
 下面的位置可以在你本地跑起来后补充截图：
 
-### 首页 / 考生端
+### 首页 / 用户端
 
 ![image-20260505205600015](./README.assets/image-20260505205600015.png)
 
@@ -330,7 +330,7 @@ python fuzz.py
 
 ### 2. WebRTC 连不上或监考后台黑屏
 
-- 本机测试时，考生端和监考端建议都使用 `https://localhost:19001`，不要混用 `localhost`、`127.0.0.1` 和局域网 IP
+- 本机测试时，用户端和监考端建议都使用 `https://localhost:19001`，不要混用 `localhost`、`127.0.0.1` 和局域网 IP
 - 检查 `MEDIASOUP_ANNOUNCED_IP` 是否是浏览器可访问的服务器地址
 - 检查 UDP 端口是否已放行
 - 检查 Docker Compose 中是否开放了对应端口范围
