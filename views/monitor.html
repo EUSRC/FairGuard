@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>智能监考中心</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <link rel="stylesheet" href="/monitor.css" />
+  <style>
+    body { background-color: #0f172a; color: #e2e8f0; margin: 0; overflow: hidden; }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <main class="monitor-area">
+      <!-- 头部控制栏：横向展开布局 -->
+      <div class="main-header-controls">
+        
+        <!-- 左侧：标题与服务器状态 -->
+        <div class="header-left">
+            <h1 class="main-title"><i class="fas fa-eye"></i> 监考中心 <span class="badge-live">LIVE</span></h1>
+            <div class="stats-bar" title="服务器实时负载">
+                <div class="stat-item"><i class="fas fa-microchip"></i> <span id="stat-cpu">0%</span></div>
+                <div class="stat-item"><i class="fas fa-memory"></i> <span id="stat-mem">0%</span></div>
+                <div class="stat-item"><i class="fas fa-users"></i> <span id="stat-users">0</span></div>
+            </div>
+        </div>
+
+        <!-- 右侧：所有操作控件 -->
+        <div class="header-right">
+            
+            <!-- 1. 翻页 -->
+            <div class="control-group no-border">
+                <button id="prev-page" class="icon-btn" title="上一页"><i class="fas fa-chevron-left"></i></button>
+                <span id="page-info" style="font-size: 13px; font-family: monospace; margin: 0 5px;">1/1</span>
+                <button id="next-page" class="icon-btn" title="下一页"><i class="fas fa-chevron-right"></i></button>
+            </div>
+
+            <!-- 2. 视图切换 -->
+            <div class="control-group" title="监考画面布局">
+                <button class="mode-btn active" data-mode="pip" title="画中画"><i class="fas fa-clone"></i></button>
+                <button class="mode-btn" data-mode="split" title="分屏"><i class="fas fa-columns"></i></button>
+                <button class="mode-btn" data-mode="cam" title="仅摄像"><i class="fas fa-user"></i></button>
+                <button class="mode-btn" data-mode="screen" title="仅屏幕"><i class="fas fa-desktop"></i></button>
+            </div>
+
+            <!-- 3. 网格与巡航 -->
+            <div class="control-group">
+                <select id="grid-size-select" class="control-select" title="每页数量">
+                    <option value="3">3 宫格</option>
+                    <option value="6">6 宫格</option>
+                    <option value="9" selected>9 宫格</option>
+                    <option value="12">12 宫格</option>
+                </select>
+                <div class="cruise-wrapper" title="自动巡航">
+                    <button id="cruise-btn" class="icon-btn tiny"><i class="fas fa-sync-alt"></i></button>
+                    <input type="number" id="cruise-interval" class="control-input no-arrow" value="10" min="3" />
+                    <span class="unit">s</span>
+                </div>
+            </div>
+
+            <!-- 4. 考生自显设置 -->
+            <div class="control-group" title="考生端是否显示画面">
+                <i class="fas fa-eye" style="color:var(--text-sub); font-size:12px; margin-right:4px;"></i>
+                <select id="student-preview-mode" class="control-select">
+                    <option value="0">禁止查看</option>
+                    <option value="1">仅摄像头</option>
+                    <option value="2">仅屏幕</option>
+                    <option value="3">画中画</option>
+                </select>
+            </div>
+
+            <!-- 5. 核心功能按钮 (保留汉字) -->
+            <div class="action-group">
+                <button id="broadcast-btn" class="action-button blue"><i class="fas fa-bullhorn"></i> 群发</button>
+                <button id="show-recordings-btn" class="action-button blue"><i class="fas fa-video"></i> 回放</button>
+                <button id="show-fingerprints-btn" class="action-button blue"><i class="fas fa-fingerprint"></i> 指纹</button>
+                <a href="/logout" class="logout-link" title="退出"><i class="fas fa-sign-out-alt"></i></a>
+            </div>
+        </div>
+      </div>
+
+      <div id="video-grid" class="video-grid-container mode-pip">
+        <div id="empty-grid-placeholder" class="empty-state">
+            <i class="fas fa-satellite-dish fa-spin"></i>
+            <h2>正在等待考生接入...</h2>
+        </div>
+      </div>
+    </main>
+
+    <aside id="sidebar">
+      <h2 class="sidebar-title"><i class="fas fa-clipboard-list"></i> 事件日志</h2>
+      <div id="event-log-container" class="event-log-wrapper" style="flex: 1; overflow-y: auto;">
+        <ul id="event-log"></ul>
+      </div>
+    </aside>
+  </div>
+
+  <div id="chat-panel">
+      <div class="chat-header">
+          <span id="chat-title">消息</span>
+          <i class="fas fa-times" id="chat-close"></i>
+      </div>
+      <div class="chat-body" id="chat-body"></div>
+      <div class="chat-footer">
+          <input type="text" id="chat-input" placeholder="输入消息..." autocomplete="off">
+          <button id="chat-send">发送</button>
+      </div>
+  </div>
+
+  <!-- 模态框 -->
+  <div id="lightbox-modal" class="modal"><div class="modal-content-wrapper"><span class="close-button">&times;</span><div id="lightbox-caption" class="modal-title"></div><video id="lightbox-video" autoplay playsinline controls></video></div></div>
+  
+  <div id="recordings-modal" class="modal"><div class="modal-content-wrapper modal-large"><span class="close-button">&times;</span><div id="recordings-modal-header" class="modal-header-dynamic"><h2 class="modal-title"><i class="fas fa-film"></i> 录像回放</h2></div><div id="recordings-modal-body" class="modal-body-dynamic"></div></div></div>
+  
+  <div id="fingerprint-modal" class="modal"><div class="modal-content-wrapper modal-large"><span class="close-button">&times;</span><div id="fingerprint-modal-header" class="modal-header-dynamic"><h2 class="modal-title"><i class="fas fa-fingerprint"></i> 设备指纹</h2></div><div id="fingerprint-modal-body" class="modal-body-dynamic"></div></div></div>
+
+  <div id="broadcast-modal" class="modal">
+      <div class="modal-content-wrapper modal-small" style="width: 500px; max-width: 90vw;">
+          <span class="close-button">&times;</span>
+          <div class="modal-header-dynamic"><h2 class="modal-title"><i class="fas fa-bullhorn"></i> 全员广播</h2></div>
+          <div class="modal-body-dynamic">
+              <div class="broadcast-form" style="padding: 10px;">
+                  <p style="color: #94a3b8; font-size: 13px; margin: 0 0 10px 0;">此消息将发送给当前在线的所有考生，并以红色高亮显示。</p>
+                  <textarea id="broadcast-text" placeholder="请输入广播内容..." rows="5" style="width: 100%; background: #0f172a; border: 1px solid #334155; color: #fff; padding: 15px; border-radius: 8px; font-size: 14px; margin-bottom: 15px; resize: vertical; outline: none;"></textarea>
+                  <div class="modal-actions" style="display: flex; justify-content: flex-end;">
+                      <button id="confirm-broadcast" class="action-button blue" style="padding: 10px 25px; font-size: 15px;">立即发送</button>
+                  </div>
+              </div>
+          </div>
+      </div>
+  </div>
+
+  <script src="/js/socket.io-client-4.7.5/dist/socket.io.min.js"></script> 
+  <script src="/mediasoup-client.min.js"></script>
+  <script src="/monitor.js"></script>
+</body>
+</html>

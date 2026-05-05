@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>监考中心 - 登录</title>
+  <link rel="stylesheet" href="login.css">
+  <link rel="stylesheet" href="./fontawesome-free-6.2.0-web/css/all.min.css" />
+</head>
+<body>
+  <div class="login-page-container">
+    <div class="bg-pattern pattern-1"></div>
+    <div class="bg-pattern pattern-2"></div>
+    <div class="login-card-container">
+      <form action="/login" method="post" class="login-form">
+        <h2 class="form-title"><i class="fas fa-lock"></i> 监考员登录</h2>
+        <% if (error) { %>
+          <p class="error-message"><i class="fas fa-exclamation-triangle"></i> <%= error %></p>
+        <% } %>
+        <div class="input-group">
+          <label for="username"><i class="fas fa-user"></i> 用户名</label>
+          <input type="text" id="username" name="username" required>
+        </div>
+        <div class="input-group">
+          <label for="password"><i class="fas fa-key"></i> 密码</label>
+          <input type="password" id="password" name="password" required>
+        </div>
+
+        <div class="input-group">
+            <label for="captcha-input"><i class="fas fa-shield-alt"></i> 验证码</label>
+            <div class="captcha-wrapper">
+                <input type="text" id="captcha-input" name="captcha" required>
+                <canvas id="captcha-canvas" width="120" height="40"></canvas>
+                <button type="button" id="refresh-captcha" class="refresh-button"><i class="fas fa-sync-alt"></i></button>
+            </div>
+        </div>
+        <button type="submit" class="submit-button">登 录 <i class="fas fa-sign-in-alt"></i></button>
+      </form>
+    </div>
+  </div>
+
+  <script src="./fontawesome-free-6.2.0-web/js/all.min.js"></script>
+  <script>
+    // 验证码逻辑
+    document.addEventListener('DOMContentLoaded', () => {
+        const captchaCanvas = document.getElementById('captcha-canvas');
+        const captchaInput = document.getElementById('captcha-input');
+        const refreshButton = document.getElementById('refresh-captcha');
+        const loginForm = document.querySelector('.login-form');
+        const ctx = captchaCanvas.getContext('2d');
+        let captchaText = '';
+
+        const generateCaptcha = () => {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+            let text = '';
+            for (let i = 0; i < 5; i++) {
+                text += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            captchaText = text;
+            drawCaptcha(captchaText);
+        };
+
+        const drawCaptcha = (text) => {
+            ctx.clearRect(0, 0, captchaCanvas.width, captchaCanvas.height);
+            ctx.fillStyle = '#f0f0f0';
+            ctx.fillRect(0, 0, captchaCanvas.width, captchaCanvas.height);
+
+            // 绘制干扰线
+            for (let i = 0; i < 5; i++) {
+                ctx.strokeStyle = `rgb(${Math.random()*200}, ${Math.random()*200}, ${Math.random()*200})`;
+                ctx.beginPath();
+                ctx.moveTo(Math.random() * captchaCanvas.width, Math.random() * captchaCanvas.height);
+                ctx.lineTo(Math.random() * captchaCanvas.width, Math.random() * captchaCanvas.height);
+                ctx.stroke();
+            }
+
+            // 绘制文字
+            ctx.font = '24px Arial';
+            ctx.fillStyle = '#333';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, captchaCanvas.width / 2, captchaCanvas.height / 2);
+
+             // 绘制干扰点
+            for (let i = 0; i < 30; i++) {
+                ctx.fillStyle = `rgb(${Math.random()*255}, ${Math.random()*255}, ${Math.random()*255})`;
+                ctx.beginPath();
+                ctx.arc(Math.random() * captchaCanvas.width, Math.random() * captchaCanvas.height, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        };
+
+        refreshButton.addEventListener('click', generateCaptcha);
+
+        loginForm.addEventListener('submit', (event) => {
+            if (captchaInput.value.toLowerCase() !== captchaText.toLowerCase()) {
+                alert('验证码错误，请重试！');
+                event.preventDefault(); // 阻止表单提交
+                generateCaptcha(); // 刷新验证码
+                captchaInput.value = ''; // 清空输入框
+            }
+            // 如果验证码正确，表单会正常提交
+        });
+
+        // 页面加载时生成第一个验证码
+        generateCaptcha();
+    });
+  </script>
+</body>
+</html>

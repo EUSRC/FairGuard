@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8" />
+    <title>EuSec | 公平竞技平台</title>
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <div class="card">
+        <div id="instruction-wizard" class="view-container">
+            <div class="wizard-step active" data-step="1">
+                <h2><i class="fas fa-shield-alt"></i> 步骤 1: 连接 VPN</h2>
+                <p class="wizard-subtitle">为确保稳定访问考核平台，请务必连接指定VPN。</p>
+                <img src="./images/vpn.png" alt="VPN 连接示意图" class="wizard-image">
+                <div class="wizard-actions">
+                    <a href="http://10.20.0.79/" target="_blank" class="primary-link-button">去首页查看教程</a>
+                    <button class="wizard-confirm-btn">我已连接Openvpn，下一步</button>
+                </div>
+            </div>
+
+            <div class="wizard-step" data-step="2">
+                <h2><i class="fas fa-tools"></i> 步骤 2: 使用 Chrome</h2>
+                <p class="wizard-subtitle">本次考核强制使用 <strong>谷歌 Chrome 浏览器</strong> 以保证最佳兼容性。</p>
+                <img src="./images/chrome.png" alt="谷歌 Chrome 浏览器图标" class="wizard-image">
+                <div class="wizard-actions">
+                    <a href="./images/ChromeSetup.exe" class="primary-link-button">下载安装包</a>
+                    <button class="wizard-confirm-btn">我已安装并用Chrome(谷歌)浏览器打开该页面，下一步</button>
+                </div>
+            </div>
+
+            <div class="wizard-step" data-step="3">
+                <h2><i class="fas fa-camera"></i> 步骤 3: 准备摄像头授权</h2>
+                <p class="wizard-subtitle">下一步将请求摄像头权限，请在浏览器弹窗中点击 <strong>“允许”</strong>。</p>
+                <img src="./images/cam-permission.png" alt="摄像头授权弹窗示意图" class="wizard-image">
+                <button class="wizard-confirm-btn">我已学会，下一步</button>
+            </div>
+
+            <div class="wizard-step" data-step="4">
+                <h2><i class="fas fa-desktop"></i> 步骤 4: 准备屏幕共享</h2>
+                <p class="wizard-subtitle error-text" style="background: none; border: none; padding: 0; font-size: 18px; line-height: 1.6;">
+                    <i class="fas fa-exclamation-triangle"></i> 最关键一步！下一步必须选择 <strong class="text-danger">“整个屏幕”</strong> 进行共享！<strong class="text-danger">否则成绩无效！</strong>
+                </p>
+                <img src="./images/screen-share.png" alt="屏幕共享选择'整个屏幕'示意图" class="wizard-image">
+                <button class="wizard-confirm-btn">我已非常了解，保证竞赛期间不关闭该页面，由关闭页面或手动停止授权等发生的责任自负，开始授权</button>
+            </div>
+
+            <div id="success-animation-overlay">
+                <svg class="success-checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                    <circle class="success-checkmark__circle" cx="26" cy="26" r="25" fill="none"/>
+                    <path class="success-checkmark__check" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8"/>
+                </svg>
+            </div>
+
+            <div class="skip-wizard-container">
+                <a href="#" id="skip-wizard-btn" class="skip-link">我已清楚理解，并理解相关操作导致的责任自负，跳过教程 &raquo;</a>
+            </div>
+        </div>
+        <div class="card-left">
+            <div id="loading-screen" class="view-container active">
+                <div class="loading-content">
+                    <img src="./logo.png" alt="EuSec Logo" class="loading-logo" />
+                    <div class="loading-text">HACKING FOR FUN...</div>
+                    <div class="loading-bar">
+                        <div class="loading-progress"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div id="authorization-guide" class="view-container">
+                <h1>授权页面</h1>
+                <p class="subtitle">请按照以下步骤完成设备授权</p>
+                <div class="guide-step" id="webcam-guide">
+                    <h3><i class="fas fa-camera"></i> 1. 授权摄像头</h3>
+                    <p>点击按钮，并在浏览器弹窗中选择“允许”，以授权访问您的摄像头。如果无摄像头设备或有特殊情况，可选择跳过。</p>
+                    <div class="authorization-buttons">
+                        <button id="request-webcam" class="action-button">请求摄像头授权</button>
+                        <button id="skip-webcam" class="secondary-button danger-button">跳过此步</button>
+                    </div>
+                    <div id="webcam-status" class="status-text"></div>
+                </div>
+                <div class="guide-step" id="screen-share-guide">
+                    <h3><i class="fas fa-desktop"></i> 2. 授权屏幕共享</h3>
+                    <p>点击按钮，并在弹窗中选择共享整个屏幕，以授权屏幕监控。</p>
+                    <button id="request-screen" class="action-button" disabled>请求屏幕共享授权</button>
+                    <div id="screen-status" class="status-text"></div>
+                </div>
+                <button id="next-to-info" class="action-button next-button" disabled>下一步：填写考核信息 <i class="fas fa-arrow-right"></i></button>
+            </div>
+
+            <div id="info-form-container" class="view-container">
+                <h1>身份信息登记页面</h1>
+                <p class="subtitle">请填写您的身份信息</p>
+                <form id="info-form">
+                    <div class="input-group">
+                        <label for="class">班级(如:软件工程1901班)</label>
+                        <input type="text" id="class" name="class" required />
+                    </div>
+                    <div class="input-group">
+                        <label for="student-id">学号(如:19611956236541)</label>
+                        <input type="text" id="student-id" name="student-id" required />
+                    </div>
+                    <div class="input-group">
+                        <label for="name">姓名(如:张三)</label>
+                        <input type="text" id="name" name="name" required />
+                    </div>
+                    <button type="submit" id="enter-wait-room-btn">Hacking！ <i class="fas fa-door-open"></i></button>
+                </form>
+                <button id="back-to-guide" class="secondary-button back-button"><i class="fas fa-arrow-left"></i> 返回上一步</button>
+            </div>
+
+            <div id="exam-interface" class="view-container">
+                <div class="exam-chat-area-full">
+                    <div class="chat-header">
+                        <h3>与监考员沟通 <i class="fas fa-comments"></i></h3>
+                        <button id="exit-exam-btn" class="secondary-button exit-button" style="margin-top: 0;"><i class="fas fa-sign-out-alt"></i> EXIT</button>
+                    </div>
+                    <p class="status-text success chat-status-message">您已进入监考室，监控已在后台开启。</p>
+                    <div id="chat-messages">
+                        <div class="message" data-sender="proctor">
+                            <span class="sender">系统:</span>
+                            <span class="text">您已成功进入监考室,请在考试结束后点击上方"EXIT"退出并等待上传完成,直接退出或刷新页面将导致成绩失效。</br>若发生意外中断如误触"停止共享"等情况或被监考联系发现问题。</br>请立即反馈并在允许后点击"EXIT"结束并上传当前时段视频信息，然后立即重新进入监考平台,否则可能导致成绩作废。</span>
+                            <span class="timestamp">2025-06-26 08:00</span>
+                        </div>
+                    </div>
+                    <div class="chat-input-area">
+                        <input type="text" id="message-input" placeholder="输入消息..." />
+                        <button id="send-button"><i class="fas fa-paper-plane"></i> 发送</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card-right hidden-on-load">
+            <div class="bg-pattern pattern-1"></div>
+            <div class="bg-pattern pattern-2"></div>
+            <div class="logo-container">
+                <img src="./logo.png" alt="EuSec Logo" class="studio-logo" />
+                <div class="platform-title">公平竞技平台</div>
+            </div>
+            <div id="camera-preview-container" class="camera-preview-wrapper">
+                <h3 class="preview-title"><i class="fas fa-video"></i> 摄像头实时预览</h3>
+                <div class="video-container">
+                    <video id="camera-preview" autoplay playsinline muted></video>
+                    <div id="no-camera-placeholder" class="placeholder-text">
+                        <i class="fas fa-camera-slash"></i>
+                        <p>请先授权摄像头<br/>(卡顿为正常现象，传输帧率较低)</p>
+                    </div>
+                </div>
+            </div>
+            <p class="description">本平台将对您的屏幕进行实时监控，请规范操作。<br />由 <span class="highlight">EuSec</span> 提供安全保障。</p>
+            <div class="system-status-display">
+                <div class="status-item">
+                    <span class="status-label">安全连接:</span>
+                    <span class="status-value connected"><i class="fas fa-circle"></i> 稳定</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="upload-modal" class="upload-modal-container">
+        <div class="upload-modal-content">
+             <h2><i class="fas fa-cloud-upload-alt"></i> 正在上传录制文件</h2>
+            <p>请保持页面不要关闭，直到所有文件上传完毕。</p>
+            <div class="progress-item">
+                <label for="camera-progress">摄像头录像上传进度:</label>
+                <progress id="camera-progress" value="0" max="100"></progress>
+                <span id="camera-progress-text">0%</span>
+            </div>
+            <div class="progress-item">
+                <label for="screen-progress">屏幕录像上传进度:</label>
+                <progress id="screen-progress" value="0" max="100"></progress>
+                <span id="screen-progress-text">0%</span>
+            </div>
+            <div id="upload-complete-message" class="upload-complete-text"></div>
+        </div>
+    </div>
+    <footer class="site-footer"></footer>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="/mediasoup-client.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

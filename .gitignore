@@ -1,0 +1,13 @@
+node_modules/
+/package.json
+/package-lock.json
+.env
+.env.*
+!.env.example
+.claude/
+CLAUDE.md
+public/recordings/
+server/public/recordings/
+npm-debug.log*
+.DS_Store
+Thumbs.db

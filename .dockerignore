@@ -1,0 +1,7 @@
+node_modules
+server/node_modules
+public/recordings
+.git
+.env
+Dockerfile
+.dockerignore

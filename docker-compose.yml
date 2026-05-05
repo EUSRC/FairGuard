@@ -1,0 +1,41 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root-password-change-me}
+      MYSQL_DATABASE: ${DB_NAME:-proctoring_system}
+      MYSQL_USER: ${DB_USER:-proctoring}
+      MYSQL_PASSWORD: ${DB_PASSWORD:-change-this-db-password}
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./proctoring_system_backup.sql:/docker-entrypoint-initdb.d/01-proctoring-system.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -uroot -p$${MYSQL_ROOT_PASSWORD} --silent"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  app:
+    build: .
+    depends_on:
+      mysql:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DB_HOST: mysql
+      RUNNING_IN_DOCKER: "true"
+      RECORDINGS_DIR: /app/public/recordings
+    ports:
+      - "${HTTP_PORT:-19000}:${HTTP_PORT:-19000}/tcp"
+      - "${HTTPS_PORT:-19001}:${HTTPS_PORT:-19001}/tcp"
+      - "${MEDIASOUP_BASE_PORT:-40000}-${MEDIASOUP_PUBLISHED_MAX_PORT:-40999}:${MEDIASOUP_BASE_PORT:-40000}-${MEDIASOUP_PUBLISHED_MAX_PORT:-40999}/udp"
+    volumes:
+      - recordings:/app/public/recordings
+      - ./server/certs:/app/server/certs:ro
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+  recordings:
